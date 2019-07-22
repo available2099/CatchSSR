@@ -12,7 +12,7 @@ public class TraceIP {
     private static String tracert = "tracert -h 30 "; //模拟tracert命令
 
     public static Boolean traceip(String ip) {
-        tracert = tracert + " " + ip;
+        tracert = "tracert -h 30" + " " + ip;
         try {
             return   command(tracert);
         } catch (IOException e) {
