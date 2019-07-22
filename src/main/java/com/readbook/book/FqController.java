@@ -14,10 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
 import java.io.*;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -30,33 +27,67 @@ public class FqController {
     @Autowired
     @Resource(name = "jdbcTemplate")
     private JdbcTemplate jdbcTemplate;
-      @RequestMapping(value = "/getssr", method = {RequestMethod.GET})
+
+    @RequestMapping(value = "/getsubscription", method = {RequestMethod.GET})
     @ResponseBody
-    public void  getssr(){
-        List<SSRNode> oklist = null;
+    public String getsubscription() {
+        
+        String result = "";
         try {
-            oklist= DoSearchSSR.getssrdata();
+            String encoding = "UTF-8";
+            //指定文件地址
+            File file = new File("C:/sst/20190721_195218.text");
+            //存储文件内容
+            StringBuilder sb = new StringBuilder();
+            //判断文件是否存在
+            if (file.isFile() && file.exists()) {
+                InputStreamReader read = new InputStreamReader(
+                        new FileInputStream(file), encoding);
+                BufferedReader bufferedReader = new BufferedReader(read);
+                String ssrurl = null;
+                while ((ssrurl = bufferedReader.readLine()) != null) {
+                    sb.append(ssrurl + "\n");
+                }
+                read.close();
+            } else {
+                System.out.println("找不到指定的文件");
+            }
+             result = sb.toString();
         } catch (IOException e) {
             e.printStackTrace();
         }
 
-        System.out.println("准备插入：总共多少："+oklist.size());
-        ExecutorService inserttable =  Executors.newFixedThreadPool(60);
+        String encodedString = Base64.getEncoder().encodeToString(result.getBytes());
+        return encodedString;
+    }
+
+    @RequestMapping(value = "/getssr", method = {RequestMethod.GET})
+    @ResponseBody
+    public void getssr() {
+        List<SSRNode> oklist = null;
+        try {
+            oklist = DoSearchSSR.getssrdata();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        System.out.println("准备插入：总共多少：" + oklist.size());
+        ExecutorService inserttable = Executors.newFixedThreadPool(60);
 
         for (SSRNode sn : oklist) {
 
             try {
                 String sql = "insert into ssr_data(downloadurl,SSRURL,server,server_port)values(?,?,?,?)";
-                Object args[] = {sn.getDownloadurl(),sn.getSSRURL(),sn.getServer(),sn.getServer_port()};
+                Object args[] = {sn.getDownloadurl(), sn.getSSRURL(), sn.getServer(), sn.getServer_port()};
                 int temp = jdbcTemplate.update(sql, args);
                 if (temp > 0) {
                     //    System.out.println("user插入成功！");
-                }else{
+                } else {
                     System.out.println("插入失败");
                 }
             } catch (Exception e) {
                 e.printStackTrace();
-                System.out.println("失败连接："+sn.getSSRURL());
+                System.out.println("失败连接：" + sn.getSSRURL());
 
             }
 
@@ -68,7 +99,7 @@ public class FqController {
 
     @RequestMapping(value = "/do4039", method = {RequestMethod.GET})
     @ResponseBody
-    public void  do4039() {
+    public void do4039() {
 
         try {
             List<SSRNode> okNodeList = new ArrayList<>();
@@ -92,7 +123,7 @@ public class FqController {
                 String ssrurl = null;
                 while ((ssrurl = bufferedReader.readLine()) != null) {
 
-                    System.out.println("文件:"+ssrurl);
+                    System.out.println("文件:" + ssrurl);
                     String[] urlArray;
 
                     if (ssrurl.indexOf("ssr://") != -1) {
@@ -154,7 +185,7 @@ public class FqController {
                                             // remStr = remStr.substring(1);
                                             //  ssrNode.setRemarks_base64(remStr);
                                             okNodeList.add(ssrNode);
-                                        } else if(len >= 4){
+                                        } else if (len >= 4) {
 
                                             //下载链接
                                             ssrNode.setDownloadurl("");
@@ -210,7 +241,7 @@ public class FqController {
                         } else if (ssrurlr != null && ssrurlr.length == 1) {
 
                             //去除ssr://
-                        String    urlString = ssrurl;
+                            String urlString = ssrurl;
                             urlString = urlString.substring(6);
                             //网页源代码的ssr连接有个感叹号,点进去又没有感叹号???有感叹号解码就会报错......
                             //urlString = urlString.replaceAll("!", "");
@@ -320,7 +351,7 @@ public class FqController {
                             ssrurl = ssrurl.substring(0, loc);//再对字符串进行截取，获得想要得到的字符串
                         }
 
-                  String      urlString = ssrurl;
+                        String urlString = ssrurl;
                         urlString = urlString.substring(5);
                         //网页源代码的ssr连接有个感叹号,点进去又没有感叹号???有感叹号解码就会报错......
                         //urlString = urlString.replaceAll("!", "");
@@ -380,11 +411,11 @@ public class FqController {
                     }
                     //  sb.append(lineTxt + "\n");
                 }
-                System.out.println( okNodeList);
+                System.out.println(okNodeList);
                 ExecutorService executorServiceCN2 = Executors.newFixedThreadPool(500);
 
                 //判断是否cn2
-                Set<SSRNode>  isCN2set = new HashSet<>();
+                Set<SSRNode> isCN2set = new HashSet<>();
 
                 for (SSRNode sn : okNodeList) {
                     executorServiceCN2.submit(
@@ -392,8 +423,8 @@ public class FqController {
                                 @Override
                                 public void run() {
 
-                                    Boolean  isCN2= TraceIP.traceip(sn.getServer());
-                                    if(isCN2){
+                                    Boolean isCN2 = TraceIP.traceip(sn.getServer());
+                                    if (isCN2) {
                                         isCN2set.add(sn);
                                     }
                                 }
@@ -407,7 +438,7 @@ public class FqController {
                 if (executorServiceCN2.isTerminated()) {
                     System.out.println("cn2判断完毕");
                     String shuchu = "";
-                    for(SSRNode sn : isCN2set){
+                    for (SSRNode sn : isCN2set) {
                         shuchu = shuchu + sn.getSSRURL() + "\n";
 
                     }
