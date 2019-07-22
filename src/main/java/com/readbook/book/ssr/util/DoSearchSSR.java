@@ -282,7 +282,7 @@ public class DoSearchSSR {
 
     public static void geturl() throws IOException {
         SourceUrlArry = new String[]{};
-        List<String> urllist = new ArrayList<>();
+        Set<String> urllist = new HashSet<>();
         //   https://github.com/available2099/ssr_subscrible_tool/network/members
         HttpGet request = new HttpGet("https://github.com/available2099/ssr_subscrible_tool/network/members");
         String message = "";
@@ -469,6 +469,7 @@ public class DoSearchSSR {
             }
         }
         // SourceUrlArry = urllist.toArray(new String[]{});
+        //urllist.toArray(new String[0]);
         SourceUrlArry = urllist.toArray(new String[]{});
     }
 
