@@ -412,30 +412,30 @@ public class FqController {
                     //  sb.append(lineTxt + "\n");
                 }
                 System.out.println(okNodeList);
-                ExecutorService executorServiceCN2 = Executors.newFixedThreadPool(500);
+           //     ExecutorService executorServiceCN2 = Executors.newFixedThreadPool(500);
 
                 //判断是否cn2
                 Set<SSRNode> isCN2set = new HashSet<>();
 
                 for (SSRNode sn : okNodeList) {
-                    executorServiceCN2.submit(
+                  /*  executorServiceCN2.submit(
                             new Thread(new Runnable() {
                                 @Override
                                 public void run() {
-
+*/
                                     Boolean isCN2 = TraceIP.traceip(sn.getServer());
                                     if (isCN2) {
                                         isCN2set.add(sn);
                                     }
-                                }
+                              /*  }
                             })
-                    );
+                    );*/
 
                 }
-                executorServiceCN2.shutdown();
+               // executorServiceCN2.shutdown();
 
                 //等待所有任务都执行结束
-                if (executorServiceCN2.isTerminated()) {
+               // if (executorServiceCN2.isTerminated()) {
                     System.out.println("cn2判断完毕");
                     String shuchu = "";
                     for (SSRNode sn : isCN2set) {
@@ -444,7 +444,7 @@ public class FqController {
                     }
                     createFile("isCN2", shuchu);
 
-                }
+                //}
                 read.close();
             } else {
                 System.out.println("找不到指定的文件");
