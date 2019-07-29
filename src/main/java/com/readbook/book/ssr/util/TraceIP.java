@@ -12,7 +12,7 @@ public class TraceIP {
     private static String tracert = "tracert -h 30 "; //模拟tracert命令
 
     public static Boolean traceip(String ip) {
-        tracert = "tracert -h 30" + " " + ip;
+        tracert = "tracert -h 100" + " " + ip;
         try {
             return   command(tracert);
         } catch (IOException e) {
@@ -54,7 +54,7 @@ public class TraceIP {
 
             }
             for (String ips : ipset) {
-                if (ips.indexOf("59.43.") != -1) {
+                if (ips.indexOf("59.43.") != -1 && ipset.size()<=13) {
                     ipcheckcn2 = true;
                 }
             }

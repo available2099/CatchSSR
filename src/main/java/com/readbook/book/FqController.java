@@ -3,6 +3,7 @@ package com.readbook.book;
 import com.readbook.book.ssr.FreeSSR;
 import com.readbook.book.ssr.bean.SSRNode;
 import com.readbook.book.ssr.util.DoSearchSSR;
+import com.readbook.book.ssr.util.ServerConfig;
 import com.readbook.book.ssr.util.TraceIP;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
@@ -27,7 +28,8 @@ public class FqController {
     @Autowired
     @Resource(name = "jdbcTemplate")
     private JdbcTemplate jdbcTemplate;
-
+    @Autowired
+    private ServerConfig serverConfig;
     @RequestMapping(value = "/getsubscription", method = {RequestMethod.GET})
     @ResponseBody
     public String getsubscription() {
@@ -60,7 +62,52 @@ public class FqController {
         String encodedString = Base64.getEncoder().encodeToString(result.getBytes());
         return encodedString;
     }
+    @RequestMapping(value = "/getsubscription80", method = {RequestMethod.GET})
+    @ResponseBody
+    public String getsubscription80() {
 
+        StringBuilder sb = new StringBuilder();
+
+        try {
+            String sql = "select *from china_dianxin  a where a.server_port='80'";
+            //  List<User> list =  jdbcTemplate.queryForList(sql,User.class);
+            List<Map<String, Object>> list = jdbcTemplate.queryForList(sql);
+System.out.println(list);
+            //result = sb.toString();
+            for(Map<String, Object> ss :  list){
+                sb.append(ss.get("SSRURL").toString() + "\n");
+
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        String encodedString = Base64.getEncoder().encodeToString(sb.toString().getBytes());
+        return encodedString;
+    }
+    @RequestMapping(value = "/getyidong", method = {RequestMethod.GET})
+    @ResponseBody
+    public String getyidong() {
+
+        StringBuilder sb = new StringBuilder();
+
+        try {
+            String sql = "select *from china_yidong ";
+            //  List<User> list =  jdbcTemplate.queryForList(sql,User.class);
+            List<Map<String, Object>> list = jdbcTemplate.queryForList(sql);
+            System.out.println(list);
+            //result = sb.toString();
+            for(Map<String, Object> ss :  list){
+                sb.append(ss.get("SSRURL").toString() + "\n");
+
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        String encodedString = Base64.getEncoder().encodeToString(sb.toString().getBytes());
+        return encodedString;
+    }
     @RequestMapping(value = "/getssr", method = {RequestMethod.GET})
     @ResponseBody
     public void getssr() {
@@ -460,11 +507,20 @@ public class FqController {
 
 public void insertyidong(String SSRURL,String server,String server_port) {
 
+    try {
+        String sql ="";
+        Object args[] = {};
+        String url = serverConfig.getUrl();
+        System.out.println("获取的IP:"+url);
+        if(url.contains("10.43")){
+             sql = "insert into china_dianxin (downloadurl,SSRURL,server,server_port)values(?,?,?,?)";
+             args= new Object[]{"", SSRURL, server, server_port};
+        }else if(url.contains("192.168")){
+             sql = "insert into china_yidong (downloadurl,SSRURL,server,server_port)values(?,?,?,?)";
+             args = new Object[]{"", SSRURL, server, server_port};
+        }
 
 
-            try {
-                String sql = "insert into china_yidong (downloadurl,SSRURL,server,server_port)values(?,?,?,?)";
-                Object args[] = {"", SSRURL, server, server_port};
                 int temp = jdbcTemplate.update(sql, args);
                 if (temp > 0) {
                     //    System.out.println("user插入成功！");

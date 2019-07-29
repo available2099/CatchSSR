@@ -1,6 +1,5 @@
 package com.readbook.book.http;
 
-import com.sun.deploy.net.HttpResponse;
 import org.apache.http.HttpEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
