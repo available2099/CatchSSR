@@ -50,7 +50,7 @@ public class TraceIP {
                 if (ip[ip.length - 1].contains(".")) {
                     ipset.add(ip[ip.length - 1]);
                 }
-                System.out.println(line);
+             //   System.out.println(line);
 
             }
             for (String ips : ipset) {
