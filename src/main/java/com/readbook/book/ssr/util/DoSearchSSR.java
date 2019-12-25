@@ -91,6 +91,7 @@ public class DoSearchSSR {
     //4. 节点状态json地址
     static String NodeStatusUrl = "http://sstz.toyoo.ml/json/stats.json";
 
+    static String vmess = "";
 
     /*
      * base64解码
@@ -529,16 +530,21 @@ public class DoSearchSSR {
                     Elements childdd = dd.children();
                     Elements heh = dd.getElementsByClass("blob-code blob-code-inner js-file-line");
                     //   System.out.println("输出得到的结果" + childdd);
+
                     for (Element ele : heh) {
                         String SSRurl = ele.text();
 
                         System.out.println("连接：" + SSRurl);
                         if ((SSRurl.indexOf("ssr://") != -1 || SSRurl.indexOf("ss://") != -1
-                                || SSRurl.indexOf("vmess://") != -1
+
                         ) && !"#".equals(SSRurl.substring(0, 1))
 
                                 ) {
                             SSRList.add(SSRurl);
+                        }else if( SSRurl.indexOf("vmess://") != -1){
+                            vmess = vmess + SSRurl + "\n";
+
+
                         }
                     }
 
@@ -550,13 +556,15 @@ public class DoSearchSSR {
         return SSRList;
     }
 
-    public static boolean createFile(String filename, String filecontent) {
+    public static boolean createFile(String filename ,String filecontent) {
         Boolean bool = false;
-        SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss");//设置日期格式
-     //   System.out.println(df.format(new Date()));// new Date()为获取当前系统时间
-        String filenameTemp = "C:/ssrfile/" + filename + df.format(new Date()) + ".text";//文件路径+名称+文件类型
+        String filenameTemp =  "C:/ssrfile/" + new SimpleDateFormat("yyyy/MM/dd").format(new Date())+"/"+new SimpleDateFormat("yyyy年MM月dd日HH时mm分ss秒").format(new Date())+filename + ".text";//文件路径+名称+文件类型
         File file = new File(filenameTemp);
         try {
+            File dir = file.getParentFile();
+            if (!dir.exists()) {
+                dir.mkdirs();
+            }
             //如果文件不存在，则创建新的文件
             if (!file.exists()) {
                 file.createNewFile();
@@ -800,6 +808,12 @@ public class DoSearchSSR {
                                                             ssrNode.setRemarks(serverName);
                                                             //ip
                                                             ssrNode.setServer(ip);
+                                                            if("39.107.136.219".equals(ip)||"47.96.87.22".equals(ip)){
+                                                                createFile("liad", url);
+                                                            }
+                                                            if("154.95.1.4".equals(ip)){
+                                                                createFile("cn2", url);
+                                                            }
                                                             //端口
                                                             ssrNode.setServer_port(Integer.valueOf(urlArray[1]));
                                                             //协议
@@ -1051,6 +1065,9 @@ public class DoSearchSSR {
 
         }
 
+        //2019-11-04 vmess 连接文本创建
+        createFile("vmess连接：", vmess);
+
         executorService.shutdown();
 
         while (true) {
@@ -1156,6 +1173,14 @@ public class DoSearchSSR {
                         //根据延时进行排序
                         // Collections.sort(okNodeList);
                         System.out.println(pingokNodeList.size() + "个可用节点:");
+
+                        //输出80端口
+                        shuchu = "";
+                        for (SSRNode sn : pingokNodeList) {
+                            shuchu = shuchu + sn.getSSRURL() + "\n";
+
+                        }
+                        createFile("quchu超时:", shuchu);
                         //节点集合
                         List<String> ssrurlList = new ArrayList<>();
                          shuchu = "";
