@@ -1,6 +1,8 @@
 package com.readbook.book.ssr;
 
 import java.io.*;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -419,9 +421,13 @@ public class FreeSSR {
     }
     public static boolean createFile(String filename ,String filecontent) {
         Boolean bool = false;
-        String filenameTemp =  "C:/ssrfile/" + filename+System.currentTimeMillis() + ".text";//文件路径+名称+文件类型
+        String filenameTemp =  "C:/ssrfile/" + new SimpleDateFormat("yyyy/MM/dd").format(new Date())+"/"+new SimpleDateFormat("yyyy年MM月dd日HH时mm分ss秒").format(new Date()) + ".text";//文件路径+名称+文件类型
         File file = new File(filenameTemp);
         try {
+            File dir = file.getParentFile();
+            if (!dir.exists()) {
+                dir.mkdirs();
+            }
             //如果文件不存在，则创建新的文件
             if (!file.exists()) {
                 file.createNewFile();
