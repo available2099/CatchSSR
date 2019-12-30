@@ -9,10 +9,7 @@ import com.readbook.book.ssr.util.TraceIP;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
@@ -26,59 +23,133 @@ import static com.readbook.book.ssr.util.DoSearchSSR.base64Decode;
 import static com.readbook.book.ssr.util.DoSearchSSR.createFile;
 
 @RestController
-@RequestMapping("/mydb")
+//@RequestMapping("/mydb")
 public class FqController {
     @Autowired
     @Resource(name = "jdbcTemplate")
     private JdbcTemplate jdbcTemplate;
     @Autowired
     private ServerConfig serverConfig;
-    @RequestMapping(value = "/noLogin/readImageFile1", method = RequestMethod.GET)
+
+    @RequestMapping(value = "/netlify/{subscriptionurl}", method = {RequestMethod.GET})
     @ResponseBody
-    public void getUrlFile(HttpServletRequest request, HttpServletResponse response) {
+    public String getsubscriptionUrl(@PathVariable String subscriptionurl) {
+
         StringBuilder sb = new StringBuilder();
 
-        String [] vemm = new String[]{"vmess://ew0KICAidiI6ICIyIiwNCiAgInBzIjogIue+juWbvXYiLA0KICAiYWRkIjogIjE3Mi4yNDUuMjIzLjE3NSIsDQogICJwb3J0IjogIjMyNTUyIiwNCiAgImlkIjogIjBmNTE3NTA3LWVhZDctNDNjYi04OTNlLTU2MzUzYzJjZWEyNiIsDQogICJhaWQiOiAiNjQiLA0KICAibmV0IjogIndzIiwNCiAgInR5cGUiOiAibm9uZSIsDQogICJob3N0IjogIiIsDQogICJwYXRoIjogIi8iLA0KICAidGxzIjogIiINCn0=",
-                "vmess://ew0KICAidiI6ICIyIiwNCiAgInBzIjogIummmea4ryIsDQogICJhZGQiOiAiMTQ5LjEyOS4xMTUuMTc3IiwNCiAgInBvcnQiOiAiMTc1MTIiLA0KICAiaWQiOiAiYTdiZjdjNDQtMGMzZi0xMWVhLWE1OWItMDAxNjNlMDRlMTQyIiwNCiAgImFpZCI6ICIxNiIsDQogICJuZXQiOiAid3MiLA0KICAidHlwZSI6ICJub25lIiwNCiAgImhvc3QiOiAiIiwNCiAgInBhdGgiOiAiL2hnR3dDM3Q4LyIsDQogICJ0bHMiOiAiIg0KfQ=="};
-        for(String vem : vemm){
-            String aa = vem.replace("vmess://","");
-            String url="";
-            try {
-                final Base64.Decoder decoder = Base64.getDecoder();
-                final Base64.Encoder encoder = Base64.getEncoder();
-                final String text = aa;
-                final byte[] textByte = text.getBytes("UTF-8");
-//编码
-                //   final String encodedText = encoder.encodeToString(textByte);
-                // System.out.println(encodedText);
-//解码
-                System.out.println(new String(decoder.decode(text), "UTF-8"));
+        try {
+            String sql = "select *from fq_users  a where a.user_url='" + subscriptionurl+"'";
+            //  List<User> list =  jdbcTemplate.queryForList(sql,User.class);
+            List<Map<String, Object>> list = jdbcTemplate.queryForList(sql);
+            System.out.println(list);
+            //result = sb.toString();
+            for (Map<String, Object> ss : list) {
+                String userType = ss.get("user_type").toString();
+                String userStatus = ss.get("user_status").toString();
+                if ("1".equals(userStatus)) {
+                    String sqlfq = "";
+                    switch (userType){
+                        case "0" :  sqlfq = "select *from fq_url  a where a.url_status in ('0','1','2')";break;
+                        case "1" :  sqlfq = "select *from fq_url  a where a.url_status in ('1','2')";break;
+                        case "2" :  sqlfq = "select *from fq_url  a where a.url_status in ('2')";break;
+                        default :  sqlfq =  "select *from fq_url  a where a.url_status='error'";break;
+                    }
+                    //  List<User> list =  jdbcTemplate.queryForList(sql,User.class);
+                    List<Map<String, Object>> listfq = jdbcTemplate.queryForList(sqlfq);
+                    for (Map<String, Object> fq : listfq) {
+                        sb.append(fq.get("url").toString() + "\n");
 
-                Base64.Decoder decoder1 = Base64.getDecoder();
-                Base64.Encoder encoder1 = Base64.getEncoder();
-                // String text = "字串文字";
-                //    byte[] textByte = text.getBytes("UTF-8");
+                    }
+                    } else {
+                    String sqlerror = "select *from fq_url  a where a.url_status='error'";
+                    //  List<User> list =  jdbcTemplate.queryForList(sql,User.class);
+                    List<Map<String, Object>> listerror = jdbcTemplate.queryForList(sqlerror);
+                    for (Map<String, Object> fq : listerror) {
+                        sb.append(fq.get("url").toString() + "\n");
+
+                    }
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        String encodedString = Base64.getEncoder().encodeToString(sb.toString().getBytes());
+        return encodedString;
+    }
+
+    @RequestMapping(value = "/quantumultx/{subscriptionurl}", method = RequestMethod.GET)
+    @ResponseBody
+    public void getUrlFile(@PathVariable String subscriptionurl,HttpServletRequest request, HttpServletResponse response) {
+        StringBuilder sb = new StringBuilder();
+
+        try {
+            String sql = "select *from fq_users  a where a.user_url='" + subscriptionurl+"'";
+            //  List<User> list =  jdbcTemplate.queryForList(sql,User.class);
+            List<Map<String, Object>> list = jdbcTemplate.queryForList(sql);
+            System.out.println(list);
+            //result = sb.toString();
+            for (Map<String, Object> ss : list) {
+                String userType = ss.get("user_type").toString();
+                String userStatus = ss.get("user_status").toString();
+                if ("1".equals(userStatus)) {
+                    String sqlfq = "";
+                    switch (userType){
+                        case "0" :  sqlfq = "select *from fq_url  a where a.url_status in ('0','1','2')";break;
+                        case "1" :  sqlfq = "select *from fq_url  a where a.url_status in ('1','2')";break;
+                        case "2" :  sqlfq = "select *from fq_url  a where a.url_status in ('2')";break;
+                        default :  sqlfq =  "select *from fq_url  a where a.url_status='error'";break;
+                    }
+                    //  List<User> list =  jdbcTemplate.queryForList(sql,User.class);
+                    List<Map<String, Object>> listfq = jdbcTemplate.queryForList(sqlfq);
+                    for (Map<String, Object> fq : listfq) {
+                        String aa = fq.get("url").toString().replace("vmess://","");
+                        String url="";
+
+                            final Base64.Decoder decoder = Base64.getDecoder();
+                            final Base64.Encoder encoder = Base64.getEncoder();
+                            final String text = aa;
+                            final byte[] textByte = text.getBytes("UTF-8");
 //编码
-                //String encodedText = encoder.encodeToString(textByte);
-                // System.out.println(encodedText);
+                            //   final String encodedText = encoder.encodeToString(textByte);
+                            // System.out.println(encodedText);
+//解码
+               //             System.out.println(new String(decoder.decode(text), "UTF-8"));
+
+                            Base64.Decoder decoder1 = Base64.getDecoder();
+                            Base64.Encoder encoder1 = Base64.getEncoder();
+                            // String text = "字串文字";
+                            //    byte[] textByte = text.getBytes("UTF-8");
+//编码
+                            //String encodedText = encoder.encodeToString(textByte);
+                            // System.out.println(encodedText);
 //解码
 
-                String openurl = new String(decoder.decode(aa), "UTF-8");
-                Map mapType = JSON.parseObject(openurl,Map.class);
-                System.out.println(mapType);
+                            String openurl = new String(decoder.decode(aa), "UTF-8");
+                            Map mapType = JSON.parseObject(openurl,Map.class);
+                            System.out.println(mapType);
 //vmess=149.129.115.177:17512, method=chacha20-ietf-poly1305, password=a7bf7c44-0c3f-11ea-a59b-00163e04e142, obfs=ws, obfs-uri=/hgGwC3t8/,fast-open=false, udp-relay=false, tag= 🇭🇰 香港
-                openurl="vmess="+mapType.get("add")+":"+mapType.get("port")+", method=chacha20-ietf-poly1305, password="+mapType.get("id")+", obfs="
-                        +mapType.get("net")+", obfs-uri=/,fast-open=false, udp-relay=false, tag="+mapType.get("ps");
+                            openurl="vmess="+mapType.get("add")+":"+mapType.get("port")+", method=chacha20-ietf-poly1305, password="+mapType.get("id")+", obfs="
+                                    +mapType.get("net")+", obfs-uri=/,fast-open=false, udp-relay=false, tag="+mapType.get("ps");
 
-                sb.append(openurl + "\n");
+                            sb.append(openurl + "\n");
 
-                // url = base64Decode(aa);
-            } catch (UnsupportedEncodingException e) {
-                e.printStackTrace();
+                            // url = base64Decode(aa);
+
+
+
+                    }
+                } else {
+                    String sqlerror = "select *from fq_url  a where a.url_status='error'";
+                    //  List<User> list =  jdbcTemplate.queryForList(sql,User.class);
+                    List<Map<String, Object>> listerror = jdbcTemplate.queryForList(sqlerror);
+                    for (Map<String, Object> fq : listerror) {
+                        sb.append(fq.get("url").toString() + "\n");
+
+                    }
+                }
             }
 
-        }
-        try {
             byte[] sburl = sb.toString().getBytes();
 
             //setContentType("text/plain; charset=utf-8"); 文本
@@ -89,9 +160,12 @@ public class FqController {
             stream.write(sburl);
             stream.flush();
             stream.close();
-        } catch (FileNotFoundException e) {
+
+        }catch (FileNotFoundException e) {
             e.printStackTrace();
         } catch (IOException e) {
+            e.printStackTrace();
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
