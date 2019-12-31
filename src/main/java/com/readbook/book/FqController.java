@@ -130,7 +130,7 @@ public class FqController {
                             System.out.println(mapType);
 //vmess=149.129.115.177:17512, method=chacha20-ietf-poly1305, password=a7bf7c44-0c3f-11ea-a59b-00163e04e142, obfs=ws, obfs-uri=/hgGwC3t8/,fast-open=false, udp-relay=false, tag= 🇭🇰 香港
                             openurl="vmess="+mapType.get("add")+":"+mapType.get("port")+", method=chacha20-ietf-poly1305, password="+mapType.get("id")+", obfs="
-                                    +mapType.get("net")+", obfs-uri=/,fast-open=false, udp-relay=false, tag="+mapType.get("ps");
+                                    +mapType.get("net")+", obfs-uri="+mapType.get("path")+",fast-open=false, udp-relay=false, tag="+mapType.get("ps");
 
                             sb.append(openurl + "\n");
 
