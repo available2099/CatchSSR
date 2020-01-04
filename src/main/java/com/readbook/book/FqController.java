@@ -61,7 +61,7 @@ public class FqController {
 
                     }
                     } else {
-                    String sqlerror = "select *from fq_url  a where a.url_status='error'";
+                    String sqlerror = "select *from fq_url  a where a.url_status='1000'";
                     //  List<User> list =  jdbcTemplate.queryForList(sql,User.class);
                     List<Map<String, Object>> listerror = jdbcTemplate.queryForList(sqlerror);
                     for (Map<String, Object> fq : listerror) {
