@@ -57,7 +57,7 @@ public class FqController {
                     //  List<User> list =  jdbcTemplate.queryForList(sql,User.class);
                     List<Map<String, Object>> listfq = jdbcTemplate.queryForList(sqlfq);
                     for (Map<String, Object> fq : listfq) {
-                        sb.append(fq.get("url").toString() + "\n");
+                            sb.append(fq.get("url").toString() + "\n");
 
                     }
                     } else {
@@ -103,8 +103,10 @@ public class FqController {
                     //  List<User> list =  jdbcTemplate.queryForList(sql,User.class);
                     List<Map<String, Object>> listfq = jdbcTemplate.queryForList(sqlfq);
                     for (Map<String, Object> fq : listfq) {
-                        String aa = fq.get("url").toString().replace("vmess://","");
-                        String url="";
+                        if(fq.get("url").toString().contains("vmess")) {
+
+                            String aa = fq.get("url").toString().replace("vmess://", "");
+                            String url = "";
 
                             final Base64.Decoder decoder = Base64.getDecoder();
                             final Base64.Encoder encoder = Base64.getEncoder();
@@ -114,7 +116,7 @@ public class FqController {
                             //   final String encodedText = encoder.encodeToString(textByte);
                             // System.out.println(encodedText);
 //解码
-               //             System.out.println(new String(decoder.decode(text), "UTF-8"));
+                            //             System.out.println(new String(decoder.decode(text), "UTF-8"));
 
                             Base64.Decoder decoder1 = Base64.getDecoder();
                             Base64.Encoder encoder1 = Base64.getEncoder();
@@ -126,18 +128,18 @@ public class FqController {
 //解码
 
                             String openurl = new String(decoder.decode(aa), "UTF-8");
-                            Map mapType = JSON.parseObject(openurl,Map.class);
+                            Map mapType = JSON.parseObject(openurl, Map.class);
                             System.out.println(mapType);
 //vmess=149.129.115.177:17512, method=chacha20-ietf-poly1305, password=a7bf7c44-0c3f-11ea-a59b-00163e04e142, obfs=ws, obfs-uri=/hgGwC3t8/,fast-open=false, udp-relay=false, tag= 🇭🇰 香港
-                            openurl="vmess="+mapType.get("add")+":"+mapType.get("port")+", method=chacha20-ietf-poly1305, password="+mapType.get("id")+", obfs="
-                                    +mapType.get("net")+", obfs-uri="+mapType.get("path")+",fast-open=false, udp-relay=false, tag="+mapType.get("ps");
+                            openurl = "vmess=" + mapType.get("add") + ":" + mapType.get("port") + ", method=chacha20-ietf-poly1305, password=" + mapType.get("id") + ", obfs="
+                                    + mapType.get("net") + ", obfs-uri=" + mapType.get("path") + ",fast-open=false, udp-relay=false, tag=" + mapType.get("ps");
 
                             sb.append(openurl + "\n");
 
                             // url = base64Decode(aa);
 
 
-
+                        }
                     }
                 } else {
                     String sqlerror = "select *from fq_url  a where a.url_status='error'";
