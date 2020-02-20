@@ -60,7 +60,7 @@ public class FqController {
                         sb.append(fq.get("url").toString() + "\n");
 
                     }
-                    } else {
+                } else {
                     String sqlerror = "select *from fq_url  a where a.url_status='1000'";
                     //  List<User> list =  jdbcTemplate.queryForList(sql,User.class);
                     List<Map<String, Object>> listerror = jdbcTemplate.queryForList(sqlerror);
@@ -103,8 +103,10 @@ public class FqController {
                     //  List<User> list =  jdbcTemplate.queryForList(sql,User.class);
                     List<Map<String, Object>> listfq = jdbcTemplate.queryForList(sqlfq);
                     for (Map<String, Object> fq : listfq) {
-                        String aa = fq.get("url").toString().replace("vmess://","");
-                        String url="";
+                        if(fq.get("url").toString().contains("vmess")) {
+
+                            String aa = fq.get("url").toString().replace("vmess://", "");
+                            String url = "";
 
                             final Base64.Decoder decoder = Base64.getDecoder();
                             final Base64.Encoder encoder = Base64.getEncoder();
@@ -114,7 +116,7 @@ public class FqController {
                             //   final String encodedText = encoder.encodeToString(textByte);
                             // System.out.println(encodedText);
 //解码
-               //             System.out.println(new String(decoder.decode(text), "UTF-8"));
+                            //             System.out.println(new String(decoder.decode(text), "UTF-8"));
 
                             Base64.Decoder decoder1 = Base64.getDecoder();
                             Base64.Encoder encoder1 = Base64.getEncoder();
@@ -126,18 +128,18 @@ public class FqController {
 //解码
 
                             String openurl = new String(decoder.decode(aa), "UTF-8");
-                            Map mapType = JSON.parseObject(openurl,Map.class);
+                            Map mapType = JSON.parseObject(openurl, Map.class);
                             System.out.println(mapType);
 //vmess=149.129.115.177:17512, method=chacha20-ietf-poly1305, password=a7bf7c44-0c3f-11ea-a59b-00163e04e142, obfs=ws, obfs-uri=/hgGwC3t8/,fast-open=false, udp-relay=false, tag= 🇭🇰 香港
-                            openurl="vmess="+mapType.get("add")+":"+mapType.get("port")+", method=chacha20-ietf-poly1305, password="+mapType.get("id")+", obfs="
-                                    +mapType.get("net")+", obfs-uri="+mapType.get("path")+",fast-open=false, udp-relay=false, tag="+mapType.get("ps");
+                            openurl = "vmess=" + mapType.get("add") + ":" + mapType.get("port") + ", method=chacha20-ietf-poly1305, password=" + mapType.get("id") + ", obfs="
+                                    + mapType.get("net") + ", obfs-uri=" + mapType.get("path") + ",fast-open=false, udp-relay=false, tag=" + mapType.get("ps");
 
                             sb.append(openurl + "\n");
 
                             // url = base64Decode(aa);
 
 
-
+                        }
                     }
                 } else {
                     String sqlerror = "select *from fq_url  a where a.url_status='error'";
@@ -172,7 +174,7 @@ public class FqController {
     @RequestMapping(value = "/getsubscription", method = {RequestMethod.GET})
     @ResponseBody
     public String getsubscription() {
-        
+
         String result = "";
         try {
             String encoding = "UTF-8";
@@ -193,7 +195,7 @@ public class FqController {
             } else {
                 System.out.println("找不到指定的文件");
             }
-             result = sb.toString();
+            result = sb.toString();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -211,7 +213,7 @@ public class FqController {
             String sql = "select *from china_dianxin  a where a.server_port='80'";
             //  List<User> list =  jdbcTemplate.queryForList(sql,User.class);
             List<Map<String, Object>> list = jdbcTemplate.queryForList(sql);
-System.out.println(list);
+            System.out.println(list);
             //result = sb.toString();
             for(Map<String, Object> ss :  list){
                 sb.append(ss.get("SSRURL").toString() + "\n");
@@ -604,25 +606,25 @@ System.out.println(list);
                 Set<SSRNode> isCN2set = new HashSet<>();
 
                 for (SSRNode sn : okNodeList) {
-                   executorServiceCN2.submit(
+                    executorServiceCN2.submit(
                             new Thread(new Runnable() {
                                 @Override
                                 public void run() {
 
                                     Boolean isCN2 = TraceIP.traceip(sn.getServer());
                                     if (isCN2) {
-                                       // isCN2set.add(sn);
-                                    insertyidong(sn.getSSRURL(),sn.getServer(),String.valueOf(sn.getServer_port()));
+                                        // isCN2set.add(sn);
+                                        insertyidong(sn.getSSRURL(),sn.getServer(),String.valueOf(sn.getServer_port()));
                                     }
-                               }
+                                }
                             })
                     );
 
                 }
-               // executorServiceCN2.shutdown();
+                // executorServiceCN2.shutdown();
 
                 //等待所有任务都执行结束
-        // if (executorServiceCN2.isTerminated()) {
+                // if (executorServiceCN2.isTerminated()) {
                  /*   System.out.println("cn2判断完毕");
                     String shuchu = "";
                     for (SSRNode sn : isCN2set) {
@@ -631,46 +633,46 @@ System.out.println(list);
                     }
                     createFile("isCN2", shuchu);*/
 
-        //}
-        read.close();
-    } else {
-        System.out.println("找不到指定的文件");
-    }
-    String result = sb.toString();
-} catch (IOException e) {
-        e.printStackTrace();
-        }
-
-        }
-
-
-public void insertyidong(String SSRURL,String server,String server_port) {
-
-    try {
-        String sql ="";
-        Object args[] = {};
-        String url = serverConfig.getUrl();
-        System.out.println("获取的IP:"+url);
-        if(url.contains("10.43")){
-             sql = "insert into china_dianxin (downloadurl,SSRURL,server,server_port)values(?,?,?,?)";
-             args= new Object[]{"", SSRURL, server, server_port};
-        }else if(url.contains("192.168")){
-             sql = "insert into china_yidong (downloadurl,SSRURL,server,server_port)values(?,?,?,?)";
-             args = new Object[]{"", SSRURL, server, server_port};
-        }
-
-
-                int temp = jdbcTemplate.update(sql, args);
-                if (temp > 0) {
-                    //    System.out.println("user插入成功！");
-                } else {
-                    System.out.println("插入失败");
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-                System.out.println("失败连接：" +SSRURL);
-
+                //}
+                read.close();
+            } else {
+                System.out.println("找不到指定的文件");
             }
+            String result = sb.toString();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+    }
+
+
+    public void insertyidong(String SSRURL,String server,String server_port) {
+
+        try {
+            String sql ="";
+            Object args[] = {};
+            String url = serverConfig.getUrl();
+            System.out.println("获取的IP:"+url);
+            if(url.contains("10.43")){
+                sql = "insert into china_dianxin (downloadurl,SSRURL,server,server_port)values(?,?,?,?)";
+                args= new Object[]{"", SSRURL, server, server_port};
+            }else if(url.contains("192.168")){
+                sql = "insert into china_yidong (downloadurl,SSRURL,server,server_port)values(?,?,?,?)";
+                args = new Object[]{"", SSRURL, server, server_port};
+            }
+
+
+            int temp = jdbcTemplate.update(sql, args);
+            if (temp > 0) {
+                //    System.out.println("user插入成功！");
+            } else {
+                System.out.println("插入失败");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.out.println("失败连接：" +SSRURL);
+
+        }
 
 
 
