@@ -60,7 +60,7 @@ public class FqController {
                             sb.append(fq.get("url").toString() + "\n");
 
                     }
-                    } else {
+                } else {
                     String sqlerror = "select *from fq_url  a where a.url_status='1000'";
                     //  List<User> list =  jdbcTemplate.queryForList(sql,User.class);
                     List<Map<String, Object>> listerror = jdbcTemplate.queryForList(sqlerror);
@@ -174,7 +174,7 @@ public class FqController {
     @RequestMapping(value = "/getsubscription", method = {RequestMethod.GET})
     @ResponseBody
     public String getsubscription() {
-        
+
         String result = "";
         try {
             String encoding = "UTF-8";
@@ -195,7 +195,7 @@ public class FqController {
             } else {
                 System.out.println("找不到指定的文件");
             }
-             result = sb.toString();
+            result = sb.toString();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -213,7 +213,7 @@ public class FqController {
             String sql = "select *from china_dianxin  a where a.server_port='80'";
             //  List<User> list =  jdbcTemplate.queryForList(sql,User.class);
             List<Map<String, Object>> list = jdbcTemplate.queryForList(sql);
-System.out.println(list);
+            System.out.println(list);
             //result = sb.toString();
             for(Map<String, Object> ss :  list){
                 sb.append(ss.get("SSRURL").toString() + "\n");
@@ -606,25 +606,25 @@ System.out.println(list);
                 Set<SSRNode> isCN2set = new HashSet<>();
 
                 for (SSRNode sn : okNodeList) {
-                   executorServiceCN2.submit(
+                    executorServiceCN2.submit(
                             new Thread(new Runnable() {
                                 @Override
                                 public void run() {
 
                                     Boolean isCN2 = TraceIP.traceip(sn.getServer());
                                     if (isCN2) {
-                                       // isCN2set.add(sn);
-                                    insertyidong(sn.getSSRURL(),sn.getServer(),String.valueOf(sn.getServer_port()));
+                                        // isCN2set.add(sn);
+                                        insertyidong(sn.getSSRURL(),sn.getServer(),String.valueOf(sn.getServer_port()));
                                     }
-                               }
+                                }
                             })
                     );
 
                 }
-               // executorServiceCN2.shutdown();
+                // executorServiceCN2.shutdown();
 
                 //等待所有任务都执行结束
-        // if (executorServiceCN2.isTerminated()) {
+                // if (executorServiceCN2.isTerminated()) {
                  /*   System.out.println("cn2判断完毕");
                     String shuchu = "";
                     for (SSRNode sn : isCN2set) {
@@ -633,46 +633,46 @@ System.out.println(list);
                     }
                     createFile("isCN2", shuchu);*/
 
-        //}
-        read.close();
-    } else {
-        System.out.println("找不到指定的文件");
-    }
-    String result = sb.toString();
-} catch (IOException e) {
-        e.printStackTrace();
-        }
-
-        }
-
-
-public void insertyidong(String SSRURL,String server,String server_port) {
-
-    try {
-        String sql ="";
-        Object args[] = {};
-        String url = serverConfig.getUrl();
-        System.out.println("获取的IP:"+url);
-        if(url.contains("10.43")){
-             sql = "insert into china_dianxin (downloadurl,SSRURL,server,server_port)values(?,?,?,?)";
-             args= new Object[]{"", SSRURL, server, server_port};
-        }else if(url.contains("192.168")){
-             sql = "insert into china_yidong (downloadurl,SSRURL,server,server_port)values(?,?,?,?)";
-             args = new Object[]{"", SSRURL, server, server_port};
-        }
-
-
-                int temp = jdbcTemplate.update(sql, args);
-                if (temp > 0) {
-                    //    System.out.println("user插入成功！");
-                } else {
-                    System.out.println("插入失败");
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-                System.out.println("失败连接：" +SSRURL);
-
+                //}
+                read.close();
+            } else {
+                System.out.println("找不到指定的文件");
             }
+            String result = sb.toString();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+    }
+
+
+    public void insertyidong(String SSRURL,String server,String server_port) {
+
+        try {
+            String sql ="";
+            Object args[] = {};
+            String url = serverConfig.getUrl();
+            System.out.println("获取的IP:"+url);
+            if(url.contains("10.43")){
+                sql = "insert into china_dianxin (downloadurl,SSRURL,server,server_port)values(?,?,?,?)";
+                args= new Object[]{"", SSRURL, server, server_port};
+            }else if(url.contains("192.168")){
+                sql = "insert into china_yidong (downloadurl,SSRURL,server,server_port)values(?,?,?,?)";
+                args = new Object[]{"", SSRURL, server, server_port};
+            }
+
+
+            int temp = jdbcTemplate.update(sql, args);
+            if (temp > 0) {
+                //    System.out.println("user插入成功！");
+            } else {
+                System.out.println("插入失败");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.out.println("失败连接：" +SSRURL);
+
+        }
 
 
 
