@@ -38,7 +38,7 @@ public class FqController {
         StringBuilder sb = new StringBuilder();
 
         try {
-            String sql = "select *from fq_users  a where a.user_url='" + subscriptionurl+"'";
+            String sql = "select *from fq_users  a where a.user_url='" + subscriptionurl + "'";
             //  List<User> list =  jdbcTemplate.queryForList(sql,User.class);
             List<Map<String, Object>> list = jdbcTemplate.queryForList(sql);
             System.out.println(list);
@@ -48,11 +48,19 @@ public class FqController {
                 String userStatus = ss.get("user_status").toString();
                 if ("1".equals(userStatus)) {
                     String sqlfq = "";
-                    switch (userType){
-                        case "0" :  sqlfq = "select *from fq_url  a where a.url_status in ('0','1','2')";break;
-                        case "1" :  sqlfq = "select *from fq_url  a where a.url_status in ('1','2')";break;
-                        case "2" :  sqlfq = "select *from fq_url  a where a.url_status in ('2')";break;
-                        default :  sqlfq =  "select *from fq_url  a where a.url_status='error'";break;
+                    switch (userType) {
+                        case "0":
+                            sqlfq = "select *from fq_url  a where a.url_status in ('0','1','2')";
+                            break;
+                        case "1":
+                            sqlfq = "select *from fq_url  a where a.url_status in ('1','2')";
+                            break;
+                        case "2":
+                            sqlfq = "select *from fq_url  a where a.url_status in ('2')";
+                            break;
+                        default:
+                            sqlfq = "select *from fq_url  a where a.url_status='error'";
+                            break;
                     }
                     //  List<User> list =  jdbcTemplate.queryForList(sql,User.class);
                     List<Map<String, Object>> listfq = jdbcTemplate.queryForList(sqlfq);
@@ -78,13 +86,14 @@ public class FqController {
         return encodedString;
     }
 
+
     @RequestMapping(value = "/quantumultx/{subscriptionurl}", method = RequestMethod.GET)
     @ResponseBody
-    public void getUrlFile(@PathVariable String subscriptionurl,HttpServletRequest request, HttpServletResponse response) {
+    public void getUrlFile(@PathVariable String subscriptionurl, HttpServletRequest request, HttpServletResponse response) {
         StringBuilder sb = new StringBuilder();
 
         try {
-            String sql = "select *from fq_users  a where a.user_url='" + subscriptionurl+"'";
+            String sql = "select *from fq_users  a where a.user_url='" + subscriptionurl + "'";
             //  List<User> list =  jdbcTemplate.queryForList(sql,User.class);
             List<Map<String, Object>> list = jdbcTemplate.queryForList(sql);
             System.out.println(list);
@@ -94,16 +103,24 @@ public class FqController {
                 String userStatus = ss.get("user_status").toString();
                 if ("1".equals(userStatus)) {
                     String sqlfq = "";
-                    switch (userType){
-                        case "0" :  sqlfq = "select *from fq_url  a where a.url_status in ('0','1','2')";break;
-                        case "1" :  sqlfq = "select *from fq_url  a where a.url_status in ('1','2')";break;
-                        case "2" :  sqlfq = "select *from fq_url  a where a.url_status in ('2')";break;
-                        default :  sqlfq =  "select *from fq_url  a where a.url_status='error'";break;
+                    switch (userType) {
+                        case "0":
+                            sqlfq = "select *from fq_url  a where a.url_status in ('0','1','2')";
+                            break;
+                        case "1":
+                            sqlfq = "select *from fq_url  a where a.url_status in ('1','2')";
+                            break;
+                        case "2":
+                            sqlfq = "select *from fq_url  a where a.url_status in ('2')";
+                            break;
+                        default:
+                            sqlfq = "select *from fq_url  a where a.url_status='error'";
+                            break;
                     }
                     //  List<User> list =  jdbcTemplate.queryForList(sql,User.class);
                     List<Map<String, Object>> listfq = jdbcTemplate.queryForList(sqlfq);
                     for (Map<String, Object> fq : listfq) {
-                        if(fq.get("url").toString().contains("vmess")) {
+                        if (fq.get("url").toString().contains("vmess")) {
 
                             String aa = fq.get("url").toString().replace("vmess://", "");
                             String url = "";
@@ -163,7 +180,7 @@ public class FqController {
             stream.flush();
             stream.close();
 
-        }catch (FileNotFoundException e) {
+        } catch (FileNotFoundException e) {
             e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
@@ -171,6 +188,28 @@ public class FqController {
             e.printStackTrace();
         }
     }
+
+    @RequestMapping(value = "/fqdata/{subscriptionurl}", method = {RequestMethod.GET})
+    @ResponseBody
+    public String getsubscriptiondata(@PathVariable String subscriptionurl) {
+
+        StringBuilder sb = new StringBuilder();
+
+        try {
+            String sqlfq = "select *from fq_url  a where a.url_status ='"+subscriptionurl+"'";
+            //  List<User> list =  jdbcTemplate.queryForList(sql,User.class);
+            List<Map<String, Object>> listfq = jdbcTemplate.queryForList(sqlfq);
+            for (Map<String, Object> fq : listfq) {
+                sb.append(fq.get("url").toString() + "\n");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        String encodedString = Base64.getEncoder().encodeToString(sb.toString().getBytes());
+        return encodedString;
+    }
+
     @RequestMapping(value = "/getsubscription", method = {RequestMethod.GET})
     @ResponseBody
     public String getsubscription() {
@@ -203,6 +242,7 @@ public class FqController {
         String encodedString = Base64.getEncoder().encodeToString(result.getBytes());
         return encodedString;
     }
+
     @RequestMapping(value = "/getsubscription80", method = {RequestMethod.GET})
     @ResponseBody
     public String getsubscription80() {
@@ -215,7 +255,7 @@ public class FqController {
             List<Map<String, Object>> list = jdbcTemplate.queryForList(sql);
             System.out.println(list);
             //result = sb.toString();
-            for(Map<String, Object> ss :  list){
+            for (Map<String, Object> ss : list) {
                 sb.append(ss.get("SSRURL").toString() + "\n");
 
             }
@@ -226,6 +266,7 @@ public class FqController {
         String encodedString = Base64.getEncoder().encodeToString(sb.toString().getBytes());
         return encodedString;
     }
+
     @RequestMapping(value = "/getyidong", method = {RequestMethod.GET})
     @ResponseBody
     public String getyidong() {
@@ -238,7 +279,7 @@ public class FqController {
             List<Map<String, Object>> list = jdbcTemplate.queryForList(sql);
             System.out.println(list);
             //result = sb.toString();
-            for(Map<String, Object> ss :  list){
+            for (Map<String, Object> ss : list) {
                 sb.append(ss.get("SSRURL").toString() + "\n");
 
             }
@@ -249,6 +290,7 @@ public class FqController {
         String encodedString = Base64.getEncoder().encodeToString(sb.toString().getBytes());
         return encodedString;
     }
+
     @RequestMapping(value = "/getssr", method = {RequestMethod.GET})
     @ResponseBody
     public void getssr() {
@@ -614,7 +656,7 @@ public class FqController {
                                     Boolean isCN2 = TraceIP.traceip(sn.getServer());
                                     if (isCN2) {
                                         // isCN2set.add(sn);
-                                        insertyidong(sn.getSSRURL(),sn.getServer(),String.valueOf(sn.getServer_port()));
+                                        insertyidong(sn.getSSRURL(), sn.getServer(), String.valueOf(sn.getServer_port()));
                                     }
                                 }
                             })
@@ -646,17 +688,17 @@ public class FqController {
     }
 
 
-    public void insertyidong(String SSRURL,String server,String server_port) {
+    public void insertyidong(String SSRURL, String server, String server_port) {
 
         try {
-            String sql ="";
+            String sql = "";
             Object args[] = {};
             String url = serverConfig.getUrl();
-            System.out.println("获取的IP:"+url);
-            if(url.contains("10.43")){
+            System.out.println("获取的IP:" + url);
+            if (url.contains("10.43")) {
                 sql = "insert into china_dianxin (downloadurl,SSRURL,server,server_port)values(?,?,?,?)";
-                args= new Object[]{"", SSRURL, server, server_port};
-            }else if(url.contains("192.168")){
+                args = new Object[]{"", SSRURL, server, server_port};
+            } else if (url.contains("192.168")) {
                 sql = "insert into china_yidong (downloadurl,SSRURL,server,server_port)values(?,?,?,?)";
                 args = new Object[]{"", SSRURL, server, server_port};
             }
@@ -670,10 +712,9 @@ public class FqController {
             }
         } catch (Exception e) {
             e.printStackTrace();
-            System.out.println("失败连接：" +SSRURL);
+            System.out.println("失败连接：" + SSRURL);
 
         }
-
 
 
         System.out.println("插入完成");
