@@ -85,7 +85,40 @@ public class FqController {
         String encodedString = Base64.getEncoder().encodeToString(sb.toString().getBytes());
         return encodedString;
     }
+    @RequestMapping(value = "/{subscriptionurl}", method = {RequestMethod.GET})
+    @ResponseBody
+    public String getZhongleleUrl(@PathVariable String subscriptionurl) {
 
+        StringBuilder sb = new StringBuilder();
+
+        try {
+            String sql = "select *from fq_users  a where a.user_url='" + subscriptionurl + "'";
+            //  List<User> list =  jdbcTemplate.queryForList(sql,User.class);
+            List<Map<String, Object>> list = jdbcTemplate.queryForList(sql);
+            System.out.println(list);
+            //result = sb.toString();
+            for (Map<String, Object> ss : list) {
+                String userType = ss.get("user_type").toString();
+                String userStatus = ss.get("user_status").toString();
+                if ("1".equals(userStatus)) {
+                    sb.append(ss.get("fq_text").toString());
+                } else {
+                    String sqlerror = "select *from fq_url  a where a.url_status='1000'";
+                    //  List<User> list =  jdbcTemplate.queryForList(sql,User.class);
+                    List<Map<String, Object>> listerror = jdbcTemplate.queryForList(sqlerror);
+                    for (Map<String, Object> fq : listerror) {
+                        sb.append(fq.get("url").toString() + "\n");
+
+                    }
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        String encodedString = Base64.getEncoder().encodeToString(sb.toString().getBytes());
+        return encodedString;
+    }
 
     @RequestMapping(value = "/quantumultx/{subscriptionurl}", method = RequestMethod.GET)
     @ResponseBody
