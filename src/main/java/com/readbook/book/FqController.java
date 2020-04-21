@@ -119,9 +119,9 @@ public class FqController {
         String encodedString = Base64.getEncoder().encodeToString(sb.toString().getBytes());
         return encodedString;
     }
-    @RequestMapping(value = "/lele/{subscriptionurl}", method = {RequestMethod.GET})
+    @RequestMapping(value = "/lele/{user}/{subscriptionurl}", method = {RequestMethod.GET})
     @ResponseBody
-    public void updataZhongleleUrl(@PathVariable String subscriptionurl) {
+    public void updataZhongleleUrl(@PathVariable String user,@PathVariable String subscriptionurl) {
 
         StringBuilder sb = new StringBuilder();
         StringBuilder sb2 = new StringBuilder();
@@ -139,14 +139,16 @@ public class FqController {
                 if ("1".equals(userStatus)) {
                     if(!ss.get("yjl_pwd").toString().equals(subscriptionurl)){
                         String fq_text=  ss.get("fq_text").toString().replaceAll(ss.get("yjl_pwd").toString(),subscriptionurl);
-                        String sqly = "update fq_users set fq_text='"+fq_text+"',yjl_pwd='"+subscriptionurl+"' where user_url=?";
+                         fq_text=  fq_text.replaceAll(ss.get("yjl_user").toString(),user);
+                        String sqly = "update fq_users set fq_text='"+fq_text+"',yjl_pwd='"+subscriptionurl+"',yjl_user='"+user+"' where user_url=?";
                         Object args[] = {"ZGVtbw=="};
+                        System.out.println("更新sql:"+sqly);
 
                         int temp = jdbcTemplate.update(sqly, args);
                         //小火箭 一键连
-                        sb.append("282607728952606720:").append(subscriptionurl).append("@a4.ap.fastqvpn.com:29980");
-                        sb2.append("282607728952606720:").append(subscriptionurl).append("@a1.ap.fastqvpn.com:29980");
-                        sb3.append("282607728952606720:").append(subscriptionurl).append("@a3.ap.fastqvpn.com:29980");
+                        sb.append(user+":").append(subscriptionurl).append("@a4.ap.fastqvpn.com:29980");
+                        sb2.append(user+":").append(subscriptionurl).append("@a1.ap.fastqvpn.com:29980");
+                        sb3.append(user+":").append(subscriptionurl).append("@a3.ap.fastqvpn.com:29980");
 
                         String http1 = "https://"+Base64.getEncoder().encodeToString(sb.toString().getBytes())+"#电报群https://t.me/demo2099"+ "\n";
                         String http2 = "https://"+Base64.getEncoder().encodeToString(sb2.toString().getBytes())+ "\n";
