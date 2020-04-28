@@ -65,7 +65,7 @@ public class FqController {
                     //  List<User> list =  jdbcTemplate.queryForList(sql,User.class);
                     List<Map<String, Object>> listfq = jdbcTemplate.queryForList(sqlfq);
                     for (Map<String, Object> fq : listfq) {
-                        sb.append(fq.get("url").toString() + "\n");
+                            sb.append(fq.get("url").toString() + "\n");
 
                     }
                 } else {
@@ -119,7 +119,65 @@ public class FqController {
         String encodedString = Base64.getEncoder().encodeToString(sb.toString().getBytes());
         return encodedString;
     }
+    @RequestMapping(value = "/lele/{user}/{subscriptionurl}", method = {RequestMethod.GET})
+    @ResponseBody
+    public void updataZhongleleUrl(@PathVariable String user,@PathVariable String subscriptionurl) {
 
+        StringBuilder sb = new StringBuilder();
+        StringBuilder sb2 = new StringBuilder();
+        StringBuilder sb3 = new StringBuilder();
+
+        try {
+            String sql = "select *from fq_users  a where a.user_url='ZGVtbw=='";
+            //  List<User> list =  jdbcTemplate.queryForList(sql,User.class);
+            List<Map<String, Object>> list = jdbcTemplate.queryForList(sql);
+            System.out.println(list);
+            //result = sb.toString();
+            for (Map<String, Object> ss : list) {
+                String userType = ss.get("user_type").toString();
+                String userStatus = ss.get("user_status").toString();
+                if ("1".equals(userStatus)) {
+                    if(!ss.get("yjl_pwd").toString().equals(subscriptionurl)){
+                        String fq_text=  ss.get("fq_text").toString().replaceAll(ss.get("yjl_pwd").toString(),subscriptionurl);
+                         fq_text=  fq_text.replaceAll(ss.get("yjl_user").toString(),user);
+                        String sqly = "update fq_users set fq_text='"+fq_text+"',yjl_pwd='"+subscriptionurl+"',yjl_user='"+user+"' where user_url=?";
+                        Object args[] = {"ZGVtbw=="};
+                        System.out.println("更新sql:"+sqly);
+
+                        int temp = jdbcTemplate.update(sqly, args);
+                        //小火箭 一键连
+                        sb.append(user+":").append(subscriptionurl).append("@a4.ap.fastqvpn.com:29980");
+                        sb2.append(user+":").append(subscriptionurl).append("@a1.ap.fastqvpn.com:29980");
+                        sb3.append(user+":").append(subscriptionurl).append("@a3.ap.fastqvpn.com:29980");
+
+                        String http1 = "https://"+Base64.getEncoder().encodeToString(sb.toString().getBytes())+"#电报群https://t.me/demo2099"+ "\n";
+                        String http2 = "https://"+Base64.getEncoder().encodeToString(sb2.toString().getBytes())+ "\n";
+                        String http3 = "https://"+Base64.getEncoder().encodeToString(sb3.toString().getBytes());
+
+                        String sqly2 = "update fq_users set fq_text='"+http1+http2+http3+"',yjl_pwd='"+subscriptionurl+"' where user_url=?";
+                        Object args2[] = {"aHR0cHM6Ly90Lm1lL2RlbW8yMDk5"};
+
+                        int temp2 = jdbcTemplate.update(sqly2, args2);
+                        if (temp > 0) {
+                               System.out.println("更新成功！");
+                        }
+                    }
+                } else {
+                    String sqlerror = "select *from fq_url  a where a.url_status='1000'";
+                    //  List<User> list =  jdbcTemplate.queryForList(sql,User.class);
+                    List<Map<String, Object>> listerror = jdbcTemplate.queryForList(sqlerror);
+                    for (Map<String, Object> fq : listerror) {
+                        sb.append(fq.get("url").toString() + "\n");
+
+                    }
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        String encodedString = Base64.getEncoder().encodeToString(sb.toString().getBytes());
+    }
     @RequestMapping(value = "/quantumultx/{subscriptionurl}", method = RequestMethod.GET)
     @ResponseBody
     public void getUrlFile(@PathVariable String subscriptionurl, HttpServletRequest request, HttpServletResponse response) {
